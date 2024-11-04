@@ -1,0 +1,35 @@
+# Android Studio specific files
+.idea/
+*.iml
+*.hprof
+
+# Gradle files
+.gradle/
+build/
+
+# Local configuration files
+/local.properties
+
+# Captured screenshots
+/captures/
+
+# Other
+.DS_Store
+.externalNativeBuild/
+.cxx/
+
+# Additional temporary files
+*.log
+*.tmp
+*.bak
+*.orig
+*.swp
+
+# Android specific files
+*.apk
+*.ap_
+*.dex
+*.class
+
+# Jetpack Compose compiler artifacts
+*/build/

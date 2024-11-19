@@ -1,4 +1,4 @@
-package lab.jhrodriguezi.tictactoe.ui.tictactoe
+package lab.jhrodriguezi.tictactoe.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -17,8 +17,12 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -33,17 +37,31 @@ fun TicTacToeScreen(
     viewModel: TicTacToeViewModel = androidx.lifecycle.viewmodel.compose.viewModel()
 ) {
     val gameState by viewModel.gameState.collectAsState()
+    var control by remember { mutableStateOf(true) }
+
+    LaunchedEffect(gameState.currentPlayer) {
+        if (gameState.currentPlayer == Player.O && control)
+            viewModel.makeComputerMove()
+        else
+            control = false
+    }
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(16.dp),
+            .padding(horizontal = 16.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
         GameStatus(gameState)
+        Text("Victorias: " + gameState.victories)
+        Text("Derrotas: " + gameState.defeats)
+        Text("Empates: " + gameState.ties)
         GameBoard(gameState, onCellClick = { viewModel.makeMove(it) })
-        NewGameButton(onClick = { viewModel.resetGame() })
+        NewGameButton(onClick = {
+            viewModel.resetGame()
+            control = true
+        })
     }
 }
 
@@ -71,9 +89,9 @@ private fun GameBoard(
 ) {
     Column(
         modifier = Modifier
-            .padding(8.dp)
             .clip(RoundedCornerShape(16.dp))
             .border(2.dp, MaterialTheme.colorScheme.outline, RoundedCornerShape(16.dp))
+            .padding(horizontal = 8.dp, vertical = 15.dp)
     ) {
         for (row in 0..2) {
             Row(
@@ -123,10 +141,12 @@ private fun GameCell(
                 text = "X",
                 color = MaterialTheme.colorScheme.primary
             )
+
             Cell.O -> PlayerSymbol(
                 text = "O",
                 color = MaterialTheme.colorScheme.error
             )
+
             Cell.Empty -> {}
         }
     }

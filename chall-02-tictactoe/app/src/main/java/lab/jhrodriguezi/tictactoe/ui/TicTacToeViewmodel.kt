@@ -1,9 +1,10 @@
-package lab.jhrodriguezi.tictactoe.ui.tictactoe
+package lab.jhrodriguezi.tictactoe.ui
 
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlin.random.Random
 
 class TicTacToeViewModel : ViewModel() {
@@ -28,7 +29,8 @@ class TicTacToeViewModel : ViewModel() {
         val currentState = _gameState.value
         if (position !in 0..8 ||
             currentState.board[position] != Cell.Empty ||
-            currentState.isGameOver) {
+            currentState.isGameOver
+        ) {
             return
         }
 
@@ -37,10 +39,12 @@ class TicTacToeViewModel : ViewModel() {
         newBoard[position] = currentState.currentPlayer.toCell()
 
         // Check for winner or updates
-        val updatedState = checkGameState(currentState.copy(
-            board = newBoard,
-            currentPlayer = currentState.currentPlayer.opposite()
-        ))
+        val updatedState = checkGameState(
+            currentState.copy(
+                board = newBoard,
+                currentPlayer = currentState.currentPlayer.opposite()
+            )
+        )
 
         _gameState.value = updatedState
 
@@ -50,7 +54,7 @@ class TicTacToeViewModel : ViewModel() {
         }
     }
 
-    private fun makeComputerMove() {
+    fun makeComputerMove() {
         // Try to win
         val winningMove = findWinningMove(Player.O)
         if (winningMove != null) {
@@ -95,16 +99,27 @@ class TicTacToeViewModel : ViewModel() {
     private fun checkGameState(state: GameState): GameState {
         val winner = checkWinner(state.board, state.currentPlayer.opposite().toCell())
         if (winner != null) {
-            return state.copy(
-                winner = state.currentPlayer.opposite(),
-                isGameOver = true,
-                winningCombination = winner
-            )
+            return when (state.currentPlayer) {
+                Player.O -> state.copy(
+                    winner = state.currentPlayer.opposite(),
+                    isGameOver = true,
+                    winningCombination = winner,
+                    victories = state.victories + 1
+                )
+
+                Player.X -> state.copy(
+                    winner = state.currentPlayer.opposite(),
+                    isGameOver = true,
+                    winningCombination = winner,
+                    defeats = state.defeats + 1
+                )
+            }
+
         }
 
         // Check for tie
         if (state.board.none { it == Cell.Empty }) {
-            return state.copy(isGameOver = true)
+            return state.copy(isGameOver = true, ties = state.ties + 1)
         }
 
         return state
@@ -120,6 +135,10 @@ class TicTacToeViewModel : ViewModel() {
     }
 
     fun resetGame() {
-        _gameState.value = GameState()
+        _gameState.value = GameState(
+            victories = _gameState.value.victories,
+            defeats = _gameState.value.defeats,
+            ties = _gameState.value.ties
+        )
     }
 }

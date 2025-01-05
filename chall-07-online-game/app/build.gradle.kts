@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
@@ -6,6 +8,12 @@ plugins {
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.dagger.hilt)        // Dagger-Hilt for dependency injection
     alias(libs.plugins.kotlin.kapt)
+}
+
+val localPropertiesFile = rootProject.file("local.properties")
+val properties = Properties()
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.inputStream().use { properties.load(it) }
 }
 
 android {
@@ -23,6 +31,8 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        buildConfigField("String", "MAPBOX_DOWNLOADS_TOKEN", "\"${properties["MAPBOX_DOWNLOADS_TOKEN"]}\"")
     }
 
     buildTypes {
@@ -88,4 +98,6 @@ dependencies {
     // Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.database.ktx)
+
+
 }

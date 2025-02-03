@@ -373,7 +373,7 @@ private fun addPoiMarker(
     }
 }
 
-haversineDistance
+// haversineDistance
 fun calculateDistance(
     latitude1: Double, longitude1: Double,
     latitude2: Double, longitude2: Double
